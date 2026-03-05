@@ -9,7 +9,6 @@ import csv
 from django.http import HttpResponse
 
 def index(request):
-    """Vista principal: lista todas las preguntas activas"""
     ahora = timezone.now()
     
     preguntas_activas = Pregunta.objects.filter(

@@ -322,7 +322,6 @@ footer a:hover {
     margin-top: 0.5rem;
 }
     
-/* Contenedores de gráficos - TODOS ocultos por defecto */
 #barras-wrapper, #pastel-wrapper {
     display: none;
     background: #f8f9fa;
@@ -333,7 +332,6 @@ footer a:hover {
     height: 400px;
 }
 
-/* Solo el que tiene la clase 'active' se muestra */
 #barras-wrapper.active, #pastel-wrapper.active {
     display: block;
 }
@@ -398,7 +396,6 @@ canvas {
     text-align: center;
 }
 
-/* Estilos para el selector de gráficos */
 .grafico-selector {
     display: flex;
     gap: 1rem;

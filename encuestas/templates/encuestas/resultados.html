@@ -8,10 +8,10 @@
     <div class="resultados-header">
         <h1>{{ pregunta.texto_pregunta }}</h1>
         <div class="pregunta-meta">
-            <span>📅 Publicada: {{ pregunta.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+            <span>Publicada: {{ pregunta.fecha_publicacion|date:"d/m/Y H:i" }}</span>
             {% if pregunta.fecha_cierre %}
             <br>
-            <span>🔒 Cerrada: {{ pregunta.fecha_cierre|date:"d/m/Y H:i" }}</span>
+            <span>Cerrada: {{ pregunta.fecha_cierre|date:"d/m/Y H:i" }}</span>
             {% endif %}
         </div>
         <div class="total-votos">
@@ -20,24 +20,20 @@
     </div>
     
     {% if total_votos > 0 %}
-        <!-- Selector de gráficos -->
         <div class="grafico-selector">
-            <button id="btn-barras" class="grafico-btn active" onclick="mostrarBarras()">📊 Gráfico de Barras</button>
-            <button id="btn-pastel" class="grafico-btn" onclick="mostrarPastel()">🥧 Gráfico de Pastel</button>
+            <button id="btn-barras" class="grafico-btn active" onclick="mostrarBarras()">Gráfico de Barras</button>
+            <button id="btn-pastel" class="grafico-btn" onclick="mostrarPastel()">Gráfico de Pastel</button>
         </div>
         
-        <!-- Contenedor para gráfico de barras -->
         <div id="barras-wrapper" class="active">
             <canvas id="graficoBarras"></canvas>
         </div>
         
-        <!-- Contenedor para gráfico de pastel -->
         <div id="pastel-wrapper">
             <canvas id="graficoPastel"></canvas>
         </div>
 
-        <!-- Tabla de resultados -->
-        <h2>📊 Resultados detallados</h2>
+        <h2>Resultados detallados</h2>
         
         <table class="tabla-resultados">
             <thead>
@@ -70,12 +66,12 @@
         {% with opciones|dictsortreversed:"votos" as opciones_ordenadas %}
             {% if opciones_ordenadas.0.votos > opciones_ordenadas.1.votos %}
                 <div class="ganador">
-                    <h3>🏆 Opción ganadora: {{ opciones_ordenadas.0.texto_opcion }}</h3>
+                    <h3>Opción ganadora: {{ opciones_ordenadas.0.texto_opcion }}</h3>
                     <p>Con {{ opciones_ordenadas.0.votos }} votos ({{ opciones_ordenadas.0.porcentaje_votos|floatformat:1 }}% del total)</p>
                 </div>
             {% elif opciones_ordenadas.0.votos == opciones_ordenadas.1.votos and opciones|length > 1 %}
                 <div class="ganador">
-                    <h3>🤝 ¡Empate!</h3>
+                    <h3>¡Empate!</h3>
                     <p>Múltiples opciones tienen la misma cantidad de votos.</p>
                 </div>
             {% endif %}
@@ -90,14 +86,14 @@
     <div class="acciones-finales">
         {% if pregunta.esta_activa %}
         <a href="{% url 'encuestas:detalle' pregunta.id %}" class="btn">
-            🗳️ Volver a votar
+            Volver a votar
         </a>
         {% endif %}
         <a href="{% url 'encuestas:index' %}" class="btn btn-secondary">
-            ← Ver todas las encuestas
+            Ver todas las encuestas
         </a>
         <a href="{% url 'encuestas:exportar' pregunta.id %}" class="btn btn-secondary">
-            📥 Exportar a CSV
+            Exportar a CSV
         </a>
     </div>
 {% endblock %}
@@ -105,45 +101,34 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Variables para los gráficos
     let chartBarras, chartPastel;
     
-    // Función para mostrar gráfico de barras
     function mostrarBarras() {
-        // Actualizar clases de los contenedores
         document.getElementById('barras-wrapper').classList.add('active');
         document.getElementById('pastel-wrapper').classList.remove('active');
         
-        // Actualizar clases de los botones
         document.getElementById('btn-barras').classList.add('active');
         document.getElementById('btn-pastel').classList.remove('active');
     }
     
-    // Función para mostrar gráfico de pastel
     function mostrarPastel() {
-        // Actualizar clases de los contenedores
         document.getElementById('pastel-wrapper').classList.add('active');
         document.getElementById('barras-wrapper').classList.remove('active');
         
-        // Actualizar clases de los botones
         document.getElementById('btn-pastel').classList.add('active');
         document.getElementById('btn-barras').classList.remove('active');
     }
     
-    // Inicializar gráficos cuando cargue la página
     document.addEventListener('DOMContentLoaded', function() {
         const labels = {{ labels|safe }};
         const datos = {{ datos|safe }};
         
-        // Array de colores para las opciones
         const coloresBase = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
         const colores = coloresBase.slice(0, datos.length);
         
-        // Destruir gráficos existentes si los hay
         if (chartBarras) chartBarras.destroy();
         if (chartPastel) chartPastel.destroy();
         
-        // Gráfico de barras
         const ctxBarras = document.getElementById('graficoBarras').getContext('2d');
         chartBarras = new Chart(ctxBarras, {
             type: 'bar',
@@ -179,7 +164,6 @@
             }
         });
         
-        // Gráfico de pastel
         const ctxPastel = document.getElementById('graficoPastel').getContext('2d');
         chartPastel = new Chart(ctxPastel, {
             type: 'pie',
@@ -209,7 +193,6 @@
             }
         });
         
-        // Asegurar que solo se muestre el gráfico de barras al inicio
         mostrarBarras();
     });
 </script>

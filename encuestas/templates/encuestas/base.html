@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Sistema de Encuestas{% endblock %}</title>
     
-    {# Cargar archivos estáticos #}
     {% load static %}
     
-    {# Enlace al archivo CSS externo #}
     <link rel="stylesheet" href="{% static 'encuestas/css/styles_base.css' %}">
     
-    {# Estilos adicionales por página #}
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -24,7 +21,6 @@
             </nav>
         </header>
 
-        {# Mostrar mensajes (corregido) #}
         {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -45,7 +41,6 @@
         </footer>
     </div>
     
-    {# JavaScript adicional por página #}
     {% block extra_js %}{% endblock %}
 </body>
 </html>
