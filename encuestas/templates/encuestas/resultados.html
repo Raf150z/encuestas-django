@@ -1,0 +1,216 @@
+{% extends 'encuestas/base.html' %}
+
+{% load static %}
+
+{% block title %}{{ pregunta.texto_pregunta }} - Resultados{% endblock %}
+
+{% block content %}
+    <div class="resultados-header">
+        <h1>{{ pregunta.texto_pregunta }}</h1>
+        <div class="pregunta-meta">
+            <span>📅 Publicada: {{ pregunta.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+            {% if pregunta.fecha_cierre %}
+            <br>
+            <span>🔒 Cerrada: {{ pregunta.fecha_cierre|date:"d/m/Y H:i" }}</span>
+            {% endif %}
+        </div>
+        <div class="total-votos">
+            <strong>Total de votos: {{ total_votos }}</strong>
+        </div>
+    </div>
+    
+    {% if total_votos > 0 %}
+        <!-- Selector de gráficos -->
+        <div class="grafico-selector">
+            <button id="btn-barras" class="grafico-btn active" onclick="mostrarBarras()">📊 Gráfico de Barras</button>
+            <button id="btn-pastel" class="grafico-btn" onclick="mostrarPastel()">🥧 Gráfico de Pastel</button>
+        </div>
+        
+        <!-- Contenedor para gráfico de barras -->
+        <div id="barras-wrapper" class="active">
+            <canvas id="graficoBarras"></canvas>
+        </div>
+        
+        <!-- Contenedor para gráfico de pastel -->
+        <div id="pastel-wrapper">
+            <canvas id="graficoPastel"></canvas>
+        </div>
+
+        <!-- Tabla de resultados -->
+        <h2>📊 Resultados detallados</h2>
+        
+        <table class="tabla-resultados">
+            <thead>
+                <tr>
+                    <th>Opción</th>
+                    <th>Votos</th>
+                    <th>Porcentaje</th>
+                    <th>Barra de progreso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for opcion in opciones %}
+                <tr>
+                    <td><strong>{{ opcion.texto_opcion }}</strong></td>
+                    <td>{{ opcion.votos }}</td>
+                    <td>{{ opcion.porcentaje_votos|floatformat:1 }}%</td>
+                    <td>
+                        <div class="barra-progreso">
+                            <div style="width: {{ opcion.porcentaje_votos|floatformat:1 }}%">
+                                {{ opcion.porcentaje_votos|floatformat:1 }}%
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Ganador -->
+        {% with opciones|dictsortreversed:"votos" as opciones_ordenadas %}
+            {% if opciones_ordenadas.0.votos > opciones_ordenadas.1.votos %}
+                <div class="ganador">
+                    <h3>🏆 Opción ganadora: {{ opciones_ordenadas.0.texto_opcion }}</h3>
+                    <p>Con {{ opciones_ordenadas.0.votos }} votos ({{ opciones_ordenadas.0.porcentaje_votos|floatformat:1 }}% del total)</p>
+                </div>
+            {% elif opciones_ordenadas.0.votos == opciones_ordenadas.1.votos and opciones|length > 1 %}
+                <div class="ganador">
+                    <h3>🤝 ¡Empate!</h3>
+                    <p>Múltiples opciones tienen la misma cantidad de votos.</p>
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+    {% else %}
+        <div class="no-encuestas">
+            <p>No hay votos registrados para esta encuesta aún.</p>
+        </div>
+    {% endif %}
+    
+    <div class="acciones-finales">
+        {% if pregunta.esta_activa %}
+        <a href="{% url 'encuestas:detalle' pregunta.id %}" class="btn">
+            🗳️ Volver a votar
+        </a>
+        {% endif %}
+        <a href="{% url 'encuestas:index' %}" class="btn btn-secondary">
+            ← Ver todas las encuestas
+        </a>
+        <a href="{% url 'encuestas:exportar' pregunta.id %}" class="btn btn-secondary">
+            📥 Exportar a CSV
+        </a>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Variables para los gráficos
+    let chartBarras, chartPastel;
+    
+    // Función para mostrar gráfico de barras
+    function mostrarBarras() {
+        // Actualizar clases de los contenedores
+        document.getElementById('barras-wrapper').classList.add('active');
+        document.getElementById('pastel-wrapper').classList.remove('active');
+        
+        // Actualizar clases de los botones
+        document.getElementById('btn-barras').classList.add('active');
+        document.getElementById('btn-pastel').classList.remove('active');
+    }
+    
+    // Función para mostrar gráfico de pastel
+    function mostrarPastel() {
+        // Actualizar clases de los contenedores
+        document.getElementById('pastel-wrapper').classList.add('active');
+        document.getElementById('barras-wrapper').classList.remove('active');
+        
+        // Actualizar clases de los botones
+        document.getElementById('btn-pastel').classList.add('active');
+        document.getElementById('btn-barras').classList.remove('active');
+    }
+    
+    // Inicializar gráficos cuando cargue la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const labels = {{ labels|safe }};
+        const datos = {{ datos|safe }};
+        
+        // Array de colores para las opciones
+        const coloresBase = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+        const colores = coloresBase.slice(0, datos.length);
+        
+        // Destruir gráficos existentes si los hay
+        if (chartBarras) chartBarras.destroy();
+        if (chartPastel) chartPastel.destroy();
+        
+        // Gráfico de barras
+        const ctxBarras = document.getElementById('graficoBarras').getContext('2d');
+        chartBarras = new Chart(ctxBarras, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Número de votos',
+                    data: datos,
+                    backgroundColor: colores,
+                    borderColor: colores.map(color => color + '99'),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: { 
+                        display: true, 
+                        text: 'Distribución de votos - Barras',
+                        font: { size: 16 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, precision: 0 },
+                        title: { display: true, text: 'Número de votos' }
+                    },
+                    x: { title: { display: true, text: 'Opciones' } }
+                }
+            }
+        });
+        
+        // Gráfico de pastel
+        const ctxPastel = document.getElementById('graficoPastel').getContext('2d');
+        chartPastel = new Chart(ctxPastel, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: datos,
+                    backgroundColor: colores,
+                    borderColor: 'white',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'bottom',
+                        labels: { font: { size: 12 } }
+                    },
+                    title: { 
+                        display: true, 
+                        text: 'Distribución de votos - Pastel',
+                        font: { size: 16 }
+                    }
+                }
+            }
+        });
+        
+        // Asegurar que solo se muestre el gráfico de barras al inicio
+        mostrarBarras();
+    });
+</script>
+{% endblock %}

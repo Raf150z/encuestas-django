@@ -1,0 +1,67 @@
+{% extends 'encuestas/base.html' %}
+
+{% block title %}{{ pregunta.texto_pregunta }} - Votar{% endblock %}
+
+{% block content %}
+    <div class="pregunta-header">
+        <h1>{{ pregunta.texto_pregunta }}</h1>
+        <div class="pregunta-meta">
+            <span>Publicada: {{ pregunta.fecha_publicacion|date:"l, d F Y H:i" }}</span>
+            {% if pregunta.fecha_cierre %}
+            <br>
+            <span>Cierra: {{ pregunta.fecha_cierre|date:"l, d F Y H:i" }}</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    {% if error_message %}
+    <div class="error-message">
+        <strong>Error:</strong> {{ error_message }}
+    </div>
+    {% endif %}
+    
+    <form action="{% url 'encuestas:votar' pregunta.id %}" method="post" class="opciones-form">
+        {% csrf_token %}
+        
+        {% for opcion in pregunta.opcion_set.all %}
+        <div class="opcion-item">
+            <input type="radio" 
+                   name="opcion" 
+                   id="opcion{{ forloop.counter }}" 
+                   value="{{ opcion.id }}"
+                   required>
+            <label for="opcion{{ forloop.counter }}">{{ opcion.texto_opcion }}</label>
+        </div>
+        {% empty %}
+        <p>Esta pregunta no tiene opciones configuradas.</p>
+        {% endfor %}
+        
+        <button type="submit" class="btn-votar" {% if not pregunta.opcion_set.all %}disabled{% endif %}>
+            Registrar mi voto
+        </button>
+    </form>
+    
+    <div class="acciones-adicionales">
+        <a href="{% url 'encuestas:resultados' pregunta.id %}" class="btn btn-secondary">
+            Ver resultados actuales
+        </a>
+        <a href="{% url 'encuestas:index' %}" class="btn btn-secondary">
+            Volver a encuestas
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if error_message %}
+        <div class="error-message">
+            <strong>Error:</strong> {{ error_message }}
+        </div>
+    {% endif %}
+
+{% endblock %}

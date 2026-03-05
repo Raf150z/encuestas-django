@@ -1,0 +1,52 @@
+{% extends 'encuestas/base.html' %}
+
+{% block title %}Inicio - Encuestas{% endblock %}
+
+{% block content %}
+    <h1 class="seccion-titulo">Encuestas Disponibles</h1>
+    
+    {% if preguntas_activas %}
+        {% for pregunta in preguntas_activas %}
+        <div class="encuesta-card activa">
+            <h2 class="encuesta-titulo">{{ pregunta.texto_pregunta }}</h2>
+            <div class="encuesta-meta">
+                <span>Publicada: {{ pregunta.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+                {% if pregunta.fecha_cierre %}
+                <span>Cierra: {{ pregunta.fecha_cierre|date:"d/m/Y H:i" }}</span>
+                {% endif %}
+            </div>
+            <div class="encuesta-stats">
+                <span>{{ pregunta.total_votos }} voto{{ pregunta.total_votos|pluralize }}</span>
+            </div>
+            <div>
+                <a href="{% url 'encuestas:detalle' pregunta.id %}" class="btn-ver">Votar</a>
+                <a href="{% url 'encuestas:resultados' pregunta.id %}" class="btn-resultados">Ver Resultados</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="no-encuestas">
+            <p>No hay encuestas activas disponibles en este momento.</p>
+        </div>
+    {% endif %}
+    
+    {% if preguntas_cerradas %}
+    <h1 class="seccion-titulo">Encuestas Cerradas</h1>
+    
+    {% for pregunta in preguntas_cerradas %}
+    <div class="encuesta-card cerrada">
+        <h2 class="encuesta-titulo">{{ pregunta.texto_pregunta }}</h2>
+        <div class="encuesta-meta">
+            <span>Publicada: {{ pregunta.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+            <span>Cerrada</span>
+        </div>
+        <div class="encuesta-stats">
+            <span>{{ pregunta.total_votos }} voto{{ pregunta.total_votos|pluralize }}</span>
+        </div>
+        <div>
+            <a href="{% url 'encuestas:resultados' pregunta.id %}" class="btn-resultados">Ver Resultados Finales</a>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+{% endblock %}
