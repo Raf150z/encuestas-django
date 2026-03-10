@@ -66,7 +66,7 @@ python -m venv venv
 ```
 4. Activar el entorno virtual
 ```
-venv\Scripts\activate
+source venv/Scripts/activate
 ```
 5. Instalar dependencias
 ```
