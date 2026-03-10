@@ -52,11 +52,11 @@ Aplicación web desarrollada con Django para crear y votar encuestas. Los usuari
 
 Sigue estos pasos para poner el proyecto en funcionamiento:
 
-### 1. Clonar el repositorio
+1. Clonar el repositorio
 ```bash
 git clone https://github.com/Raf150z/encuestas-django.git
 ```
-## 2. Entrar a la carpeta del proyecto
+2. Entrar a la carpeta del proyecto
 ```
 cd encuestas-django
 ```
