@@ -53,7 +53,8 @@ Aplicación web desarrollada con Django para crear y votar encuestas. Los usuari
 Sigue estos pasos para poner el proyecto en funcionamiento:
 
 1. Clonar el repositorio
-```bash
+CMD
+```
 git clone https://github.com/Raf150z/encuestas-django.git
 ```
 2. Entrar a la carpeta del proyecto
@@ -66,7 +67,7 @@ python -m venv venv
 ```
 4. Activar el entorno virtual
 ```
-source venv/Scripts/activate
+venv\Scripts\activate
 ```
 5. Instalar dependencias
 ```
