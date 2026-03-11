@@ -1,4 +1,4 @@
-# Aplicación de Encuestas con Django
+# Aplicación de Encuestas con Django 
 
 Aplicación web desarrollada con Django para crear y votar encuestas. Los usuarios pueden ver preguntas, votar por diferentes opciones y visualizar los resultados con gráficos interactivos.
 
